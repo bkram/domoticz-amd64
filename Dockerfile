@@ -1,0 +1,18 @@
+FROM debian:buster-slim
+LABEL AUTHOR="Mark de Bruijn <mrdebruijn@gmail.com>"
+LABEL description="Domoticz Beta Docker Image with python support"
+
+RUN export DEBIAN_FRONTEND=noninteractive && apt-get update && \
+apt-get install --no-install-recommends -y  apt-utils && apt install -y libusb-0.1-4 libcap2-bin libcurl3-gnutls curl libcurl4 \
+python3-requests python3-paramiko libpython3.7-dev && rm -rf /var/lib/apt/lists/* && c_rehash
+
+RUN curl -sSL https://github.com/just-containers/s6-overlay/releases/download/v1.22.1.0/s6-overlay-amd64.tar.gz | tar -vxzC /
+
+WORKDIR /var/lib/domoticz
+RUN curl -sSL https://releases.domoticz.com/releases/beta/domoticz_linux_x86_64.tgz | tar -vxzC .
+
+EXPOSE 8080 8443
+COPY root/ /
+
+VOLUME [ "/config" ]
+ENTRYPOINT [ "/init" ]
